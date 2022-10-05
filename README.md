@@ -15,3 +15,4 @@ On paper this strategy seems well founded and when looking at historical spreads
 
 The intention of this strategy is not to make a huge amount of arbitrage profit, that is highly unlikely, but instead to provide a different take on cryptocurrency arbitrage that I haven’t seen discussed before. And the live arbitrage trading bot is a small coding exercise in itself.
 
+The FutureSpotArbitrageExploration notebook details the simple process of testing the arbitrage theory and examining if theoretical opportunities exist. The AbritrageTradingBot is a simple live trading bot that uses an Future-Spot mean and third quartile based arbitrage strategy. The Abitrage Utils file contains dictionaries of target cryptocurrencies and historical mean and quartile values used in live trading. These historical values would likely need updating at regular intervals and the length of historical data used is another hyperparameter open to tuning.
