@@ -25,12 +25,7 @@ def check_trade(bid_ask):
                     entry_excess = float(((entry_spread - trade_threshold) / trade_threshold) * 100)
                     exit_excess = float(((exit_spread - trade_threshold) / trade_threshold) * 100)
                     target[(entry_excess+exit_excess)/2] = f'{ratio}'
-                else:
-                    pass
-            else:
-                pass
-        else:
-            pass
+
 
     # returning the currency with max excess threshold
     if len(target) > 0:
