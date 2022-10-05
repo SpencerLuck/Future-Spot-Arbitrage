@@ -53,9 +53,9 @@ current_trades = {}
 
 
 # On Init
-S_api_key = '511V4FYAfBEBSCi4AOH9FL4YRQTSSBs8SIBGdzFz'
-S_api_secret = '8IQFj_oKryBQGl87UoJFi1QzFgOKLDMaZuJw-4rG'
-SignIn = ftx.FtxClient(api_key=S_api_key, api_secret=S_api_secret)
+api_key = ''
+api_secret = ''
+SignIn = ftx.FtxClient(api_key=api_key, api_secret=api_secret)
 AccInfo = SignIn.get_account_info()
 
 
