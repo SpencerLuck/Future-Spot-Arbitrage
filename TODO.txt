@@ -1,0 +1,7 @@
+Data collection:
+    Get the funding rates for Binance perps - DONE
+    Get spot and perp prices for all Binance coins - DONE
+
+
+
+
