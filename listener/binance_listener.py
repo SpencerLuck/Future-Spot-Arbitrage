@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from typing import Dict, Iterable, List, Optional
 
@@ -24,6 +25,33 @@ def _iter_market_types(market_type: str) -> Iterable[str]:
 
 def _print_json_line(payload: dict) -> None:
     print(json.dumps(payload, separators=(",", ":")), flush=True)
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw)
+    except Exception:
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return float(raw)
+    except Exception:
+        return default
 
 
 def listen(
@@ -100,7 +128,21 @@ def listen(
 
 
 def main() -> None:
-    listen(["BTCUSDT"], quote_interval_ms=1000, with_funding=True)
+    symbols_raw = os.environ.get("SYMBOLS", "BTCUSDT")
+    symbols = [s.strip().upper() for s in symbols_raw.split(",") if s.strip()]
+    listen(
+        symbols,
+        market_type=os.environ.get("MARKET_TYPE", "both"),
+        quote_interval_ms=_env_int("QUOTE_INTERVAL_MS", 1000),
+        quote_depth_levels=_env_int("QUOTE_DEPTH_LEVELS", 5),
+        user_agent=os.environ.get("USER_AGENT", "arbitrage-listener/1.0"),
+        insecure_ssl=_env_bool("INSECURE_SSL", True),
+        retries=_env_int("RETRIES", 3),
+        pause=_env_float("PAUSE", 0.5),
+        with_funding=_env_bool("WITH_FUNDING", False),
+        funding_interval_ms=_env_int("FUNDING_INTERVAL_MS", 60_000),
+        include_index_price=_env_bool("INCLUDE_INDEX_PRICE", False),
+    )
 
 
 if __name__ == "__main__":
