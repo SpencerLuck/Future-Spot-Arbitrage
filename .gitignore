@@ -11,8 +11,3 @@ venv/
 .DS_Store
 
 data/
-arbitrage/data/
-arbitrage/data_spot/
-backtest/data/
-backtest/data_spot/
-data_collector/database/
