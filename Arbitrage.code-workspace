@@ -4,5 +4,19 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"sqltools.connections": [
+			{
+				"ssh": "Disabled",
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 5432,
+				"driver": "PostgreSQL",
+				"name": "arbitrage-db",
+				"database": "market_data",
+				"username": "listener_user",
+				"password": "listener_pass"
+			}
+		]
+	}
 }
