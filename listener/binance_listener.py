@@ -66,7 +66,9 @@ def listen(
     pause: float = 0.5,
     with_funding: bool = False,
     funding_interval_ms: int = 60_000,
-    include_index_price: bool = False
+    include_index_price: bool = False,
+    db_dsn: Optional[str] = None,
+    db_schema: str = "market_data",
 ) -> None:
     symbols = [s.strip().upper() for s in symbols if s.strip()]
     if not symbols:
@@ -87,6 +89,12 @@ def listen(
         "pause": pause,
     }
 
+    db_writer = None
+    if db_dsn:
+        from db_writer import DbWriter
+
+        db_writer = DbWriter(db_dsn, schema=db_schema)
+
     while True:
         now = time.time()
 
@@ -101,6 +109,8 @@ def listen(
                         **request_opts,
                     )
                     snapshot["iter_id"] = iter_id
+                    if db_writer:
+                        db_writer.insert_quote(snapshot)
                     _print_json_line(snapshot)
             next_quote += quote_interval_s
             if next_quote < now:
@@ -117,6 +127,8 @@ def listen(
                     continue
                 funding_time = event.get("funding_time")
                 if funding_time and funding_time != last_funding.get(symbol):
+                    if db_writer:
+                        db_writer.insert_funding_event(event)
                     _print_json_line(event)
                     last_funding[symbol] = funding_time
             next_funding += funding_interval_s
@@ -142,6 +154,8 @@ def main() -> None:
         with_funding=_env_bool("WITH_FUNDING", False),
         funding_interval_ms=_env_int("FUNDING_INTERVAL_MS", 60_000),
         include_index_price=_env_bool("INCLUDE_INDEX_PRICE", False),
+        db_dsn=os.environ.get("DB_DSN"),
+        db_schema=os.environ.get("DB_SCHEMA", "market_data"),
     )
 
 

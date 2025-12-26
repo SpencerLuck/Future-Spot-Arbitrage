@@ -1,4 +1,4 @@
-# Perp-Spot Arbitrage Strategy & Backtester
+# Perp-Spot Arbitrage Strategy & Data Collection (Listener)
 
 This repo backtests a simple spot-perp arbitrage strategy on Binance data. The strategy looks for times when perpetual futures trade above spot by more than costs, then enters a market-neutral hedge: short perp, long spot.
 
@@ -15,43 +15,51 @@ Costs and carry:
 - Taker fees: applied per leg on entry and exit
 - Funding: accrued over the holding window (perp funding rates)
 
-## Backtester Execution Model
 
-- Per-symbol backtest (no portfolio overlap)
-- Enter on the next bar after a signal window starts
-- Exit on the next bar after the window ends
-- Position sizing: percent of equity, allocated to the two-leg notional
-- Equity updated after each trade; summary stats computed from trade list
+## Listener (Docker)
 
-## Inputs
-
-CSVs are expected in:
-- Perp: `<perp_dir>/<SYMBOL>_<interval>_PERP.csv` and `<perp_dir>/<SYMBOL>_funding.csv`
-- Spot: `<spot_dir>/<SYMBOL>_<interval>_SPOT.csv`
-
-By default, `perp_dir` and `spot_dir` match the ingest scripts:
-- `arbitrage/data`
-- `arbitrage/data_spot`
-
-## Outputs
-
-Written once at the end of the run:
-- `data/arb_trades/ALL_TRADES.csv`
-- `data/arb_trades/ALL_SUMMARY.csv`
-
-If `cleanup_raw_after_backtest = True`, raw CSVs for each symbol are deleted after its backtest completes.
-
-## Configure & Run
-
-Edit `src/backtester_config.py`:
-- `interval`, `start_date`, `end_date` (or `start_ms` / `end_ms`)
-- `equity_pct`, `slippage_bps`, fees
-- `run_download` (download each symbol before backtest)
-- `cleanup_raw_after_backtest` (delete source CSVs after each symbol)
-- `symbols` or `use_alt_coins` + `alt_coins_path`
-
-Run:
+Edit `.env`, then start the stack:
 
 ```bash
-python src/backtester.py
+docker compose up -d
 ```
+
+Follow logs:
+
+```bash
+docker compose logs -f listener
+```
+
+Stop/start just the listener:
+
+```bash
+docker compose stop listener
+docker compose start listener
+```
+
+Tear everything down:
+
+```bash
+docker compose down
+```
+
+### Environment Variables
+
+These are all defined in `.env` and loaded by Docker Compose.
+
+- `POSTGRES_DB`: database name for the Postgres container.
+- `POSTGRES_USER`: database user for the Postgres container.
+- `POSTGRES_PASSWORD`: database password for the Postgres container.
+- `DB_DSN`: Postgres DSN for the listener (if unset, it only prints JSON).
+- `DB_SCHEMA`: schema name for the listener tables (default `market_data`).
+- `SYMBOLS`: comma-separated list like `BTCUSDT,ETHUSDT`.
+- `MARKET_TYPE`: `spot`, `perp`, or `both`.
+- `QUOTE_INTERVAL_MS`: poll interval for quote snapshots.
+- `QUOTE_DEPTH_LEVELS`: number of depth levels; `0` disables depth arrays.
+- `USER_AGENT`: HTTP User-Agent for API requests.
+- `INSECURE_SSL`: `true` to skip SSL verification, `false` to enforce.
+- `RETRIES`: number of HTTP retry attempts.
+- `PAUSE`: seconds to wait between retries.
+- `WITH_FUNDING`: `true` to poll funding events, `false` to skip.
+- `FUNDING_INTERVAL_MS`: poll interval for funding events.
+- `INCLUDE_INDEX_PRICE`: `true` to include Binance futures index price.
